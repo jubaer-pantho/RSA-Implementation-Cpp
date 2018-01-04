@@ -1,4 +1,3 @@
-# This file is licensed under the CC0 license (See http://creativecommons.org/publicdomain/zero/1.0/).
 #This file is modified to run the RSA algorithm
 #author : Md Jubaer Hossain Pantho
 
@@ -11,7 +10,7 @@ TARGET_NAME_OPT = obj
 OBJ_PATH = ../$(TARGET_NAME_OPT)
 UNAME = $(shell uname -s)
 COMPILER=g++
-CFLAGS = -Wall -Wshadow -Wvla -pedantic -std=c++11
+CFLAGS = -Wall -Wvla -pedantic -std=c++11
 OPT_LFLAGS = 
 OPT_CFLAGS = $(CFLAGS) -O3
 
