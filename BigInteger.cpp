@@ -35,7 +35,6 @@ BigInteger::BigInteger(const BigInteger &obj)
 
 BigInteger::~BigInteger()
 {
-    //dtor
     delete [] digit;
 }
 
@@ -63,27 +62,17 @@ void BigInteger::showDigits()
 
 void BigInteger::setDigits(int index)
 {
-
     if(index == 0)
     {
-        //digit[3] = 40;
-        digit[2] = 0;
-        digit[1] = 0; //4294967295;
-        digit[0] = 33;
+        digit[1] = 1; //4294967295;
+        digit[0] = 1;
     }
     else if(index ==1)
      {
-         //digit[2] = 1;
          digit[1]= 0;
-         digit[0] = 7 ;//429496725;
+         digit[0] = 2 ;//429496725;
      }
-     else if(index ==2)
-     {
-//         digit[2]= 5;
-//         digit[1]= 6;
-         digit[0] = 3;
 
-     }
 }
 
 void BigInteger::addBigInteger(BigInteger& a, BigInteger& b)
@@ -96,10 +85,7 @@ void BigInteger::addBigInteger(BigInteger& a, BigInteger& b)
         sum = (unsigned long long int) a.digit[i] + (unsigned long long int) b.digit[i] + k;
         digit[i] = (unsigned int) (sum % base);
         k = (unsigned int) (sum / base);
-
     }
-
-
 }
 
 void BigInteger::subBigInteger(BigInteger& a, BigInteger& b)
@@ -117,12 +103,11 @@ void BigInteger::subBigInteger(BigInteger& a, BigInteger& b)
 
 void BigInteger::multBigInteger(BigInteger& a, BigInteger& b)
 {
-
     for(int k=0;k<nSize;k++)
     {
         digit[k] =0;
     }
-
+    
     int smallN = a.nSize/2;
     unsigned long long int base = 4294967296;
 
@@ -232,10 +217,25 @@ long long int normalize(unsigned long long int x)
 
 int divBigInteger(BigInteger& u, BigInteger& v, BigInteger& q, BigInteger& r)
 {
+    int flagCompare = Compare(u,v);
+    if(flagCompare==-1)
+    {
+        q.clearBigInteger();
+        r.copyBigInteger(u,0);
+    }
+    else if(flagCompare ==0)
+    {
+        q.clearBigInteger();
+        r.clearBigInteger();
+        q.digit[0]=1;
+    }
+    else
+    {
+
    int m = u.msbBigInteger() +1;
    int n = v.msbBigInteger() +1;
    unsigned long long int b = 4294967296; // Number base (32 bits).
-   
+
    // Normalized form of u, v.
    unsigned int *unorm = new unsigned int[2*(m + 1)];
    unsigned int *vnorm = new unsigned int[2*n];
@@ -243,10 +243,8 @@ int divBigInteger(BigInteger& u, BigInteger& v, BigInteger& q, BigInteger& r)
    unsigned long long int qhat;
    unsigned long long int rhat;
    // Product of two digits.
-   unsigned long long int p;               
+   unsigned long long int p;
    long long int s, i, j, t, k;
-
-
 
    if (m < n || n <= 0 || v.digit[n-1] == 0)
       return 1;              // Return if invalid param.
@@ -311,12 +309,14 @@ again:
       for (i = 0; i < n; i++)
          r.digit[i] = (unorm[i] >> s) | (unorm[i+1] << (32-s));
 
+    delete[] unorm;
+    delete[] vnorm;
+    }
    return 0;
 }
 
 void gcdBigInteger(BigInteger& a, BigInteger& b, BigInteger& result)
 {
-
     BigInteger tmpa(a.nSize);
     BigInteger tmpb(a.nSize);
 
@@ -329,18 +329,14 @@ void gcdBigInteger(BigInteger& a, BigInteger& b, BigInteger& result)
         {
             result.digit[i] = tmpa.digit[i];
         }
-
     }
     else
     {
         BigInteger q(a.nSize);
         BigInteger r(a.nSize);
         divBigInteger(tmpa, tmpb, q, r);
-
         gcdBigInteger(tmpb, r, result);
-
     }
-
 }
 
 
@@ -382,3 +378,14 @@ void BigInteger::expoModNBigInteger(BigInteger& x, BigInteger& y, BigInteger& N,
 
 	return;
 }
+
+void BigInteger::setSize(int n)
+{
+	nSize = n;
+	digit = new unsigned int[n];
+	for (int i = 0; i < nSize;i++)
+	{
+		digit[i] = 0;
+	}
+}
+
