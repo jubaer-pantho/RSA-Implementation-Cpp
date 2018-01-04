@@ -18,9 +18,7 @@ class BigInteger
         void multBigInteger(BigInteger& a, BigInteger& b);
         void copyBigInteger(BigInteger& a, int index);
         void expoModNBigInteger(BigInteger& x, BigInteger& y, BigInteger& N, BigInteger& result);
-
-        //div function is written separately from the class
-
+        void setSize(int n);
         int msbBigInteger();
         void clearBigInteger();
         void showDigits();
