@@ -7,7 +7,7 @@
 #include <memory>
 #include "BigInteger.h"
 #include "RSABigInteger.h"
-
+#include <time.h>
 
 using std::cout;
 using std::cerr;
@@ -16,95 +16,170 @@ using std::auto_ptr;
 
 using namespace std;
 
+#define SIZEN 98         //     word size bit = N*32
+#define HALFSIZE 48      //
 
-int main()
+#define WORD_COUNT 390
+#define SIZE 960		//N
+
+void basicOperationOfBigInteger()
 {
-    BigInteger a(10);
-    BigInteger b(10);
-    BigInteger sum(10);
-    BigInteger sub(10);
-    BigInteger mult(10);
-    BigInteger modd(10);
+    BigInteger num1(SIZEN);
+    BigInteger num2(SIZEN);
 
+    RSABigInteger operationCheck(SIZEN);
 
+    operationCheck.randomNGeneration(num1, HALFSIZE); // 1536 bit numbers
+    operationCheck.randomNGeneration(num2, HALFSIZE); // 1536 bit numbers
 
-    a.setDigits(0);
-    b.setDigits(1);
+    BigInteger add(SIZEN);
+    BigInteger sub(SIZEN);
 
-    printf("a=");
-    a.showDigits();
+    cout<<"\nnum1 :\n";
+    num1.showDigits();
+    cout<<"\nnum2 :\n";
+    num2.showDigits();
+    
 
-    printf("b=");
-    b.showDigits();
+    struct timespec tstart={0,0}, tend={0,0};
+    clock_gettime(CLOCK_MONOTONIC, &tstart);
+    
+    add.addBigInteger(num1,num2);
+    
+    clock_gettime(CLOCK_MONOTONIC, &tend);
+    printf("\naddition took about %.5f seconds\n",
+           ((double)tend.tv_sec + 1.0e-9*tend.tv_nsec) - 
+           ((double)tstart.tv_sec + 1.0e-9*tstart.tv_nsec));
+           
+	cout<<"\naddition = num1 + num2 :\n";
+	add.showDigits();
 
-    sum.addBigInteger(a,b);
-    printf("add=");
-    sum.showDigits();
+    tstart={0,0};
+    tend={0,0};
+    clock_gettime(CLOCK_MONOTONIC, &tstart);
 
-    sub.subBigInteger(a,b);
-    printf("sub=");
+	sub.subBigInteger(add, num1);
+    
+    clock_gettime(CLOCK_MONOTONIC, &tend);
+    printf("\nsubtraction took about %.5f seconds\n",
+           ((double)tend.tv_sec + 1.0e-9*tend.tv_nsec) - 
+           ((double)tstart.tv_sec + 1.0e-9*tstart.tv_nsec));
+
+    cout<<"\nsubtraction = addition - num1 :\n";
     sub.showDigits();
+           
+    BigInteger mult(SIZEN);
+         
+    tstart={0,0};
+    tend={0,0};
+    clock_gettime(CLOCK_MONOTONIC, &tstart);
+    
+    mult.multBigInteger(num1, num2);
 
-    mult.multBigInteger(a,b);
-    printf("mult=");
+    clock_gettime(CLOCK_MONOTONIC, &tend);
+    printf("\nmultiplication took about %.5f seconds\n",
+           ((double)tend.tv_sec + 1.0e-9*tend.tv_nsec) - 
+           ((double)tstart.tv_sec + 1.0e-9*tstart.tv_nsec));
+
+    cout<<"\nmultiplication = num1 * num2 :\n";
     mult.showDigits();
 
-    int comp= Compare(a,b);
-    cout<< "comp = " << comp << endl;
+    BigInteger qotnt(SIZEN);
+    BigInteger rem(SIZEN);
 
-    BigInteger d(10);
-    divBigInteger(a, b, d, modd);
-    cout<<"Division=";
-    d.showDigits();
-    cout<<"Remainder=";
-    modd.showDigits();
+    tstart={0,0};
+    tend={0,0};
+    clock_gettime(CLOCK_MONOTONIC, &tstart);
+ 
+    divBigInteger(mult, num1, qotnt, rem);
 
-    BigInteger result(10);
+    clock_gettime(CLOCK_MONOTONIC, &tend);
+    printf("\nDivistion took about %.5f seconds\n",
+           ((double)tend.tv_sec + 1.0e-9*tend.tv_nsec) - 
+           ((double)tstart.tv_sec + 1.0e-9*tstart.tv_nsec));
+           
+    cout<<"\nqotient = multiplication / num1 :\n";
+    qotnt.showDigits();
 
-    gcdBigInteger(a,b,result);
+    cout<<"\nremainder = multiplication % num1 :\n";
+    rem.showDigits();
 
-    cout <<"gcd=";
-    result.showDigits();
+    BigInteger gcd(SIZEN);
 
-    BigInteger expo(10), expoThis(10);
+    tstart={0,0};
+    tend={0,0};
+    clock_gettime(CLOCK_MONOTONIC, &tstart);
 
-    BigInteger N(10);
-    N.setDigits(2);
-    cout<<"expo=";
-    expoThis.expoModNBigInteger(b,a,N,expo);
-    expo.showDigits();
+    gcdBigInteger(num1, num2, gcd);
 
-    RSABigInteger eGen;
-    BigInteger phi(10);
-    BigInteger e(10);
-    phi.digit[0]=20;
+    clock_gettime(CLOCK_MONOTONIC, &tend);
+    printf("\nGCD took about %.5f seconds\n",
+           ((double)tend.tv_sec + 1.0e-9*tend.tv_nsec) - 
+           ((double)tstart.tv_sec + 1.0e-9*tstart.tv_nsec));    
+    
+    
+    cout<<"\ngcd (num1, num2) :\n";
+    gcd.showDigits();
 
-    BigInteger c(10);
-    c.setDigits(2);
+}
 
+int main(int argc,  char** argv)
+{
 
-    cout<<"evalue=";
-    eGen.eGeneration(phi, e);
-    e.showDigits();
+    
+    srand ( time(NULL) );
+    
+    
 
-    BigInteger msg(10);
-    BigInteger msg2(10);
+    //call this function to see basic operation results of 1536 bits
+    basicOperationOfBigInteger();
+    
+        int nSize;
+    if(argc  < 2)
+        nSize = SIZE;
+    else
+        nSize = atoi(argv[1]);
 
-    msg.digit[0] = 2;
-    BigInteger code(10);
+    nSize = nSize/32;
 
+    cout<<"RSA Algorithm"<<endl;
+    RSABigInteger rsa(WORD_COUNT);
+    cout<<"Random Prime Number Generation"<<endl;
 
-    eGen.encryption(b, a, msg, code);
+    struct timespec tstart={0,0}, tend={0,0};
+    clock_gettime(CLOCK_MONOTONIC, &tstart);
+    
+    BigInteger primeNumberP(WORD_COUNT), primeNumberQ(WORD_COUNT);
+    rsa.primeNumberGeneration(primeNumberP, nSize/2);
+    cout<<"\nprimeNumber, p=\n";
+    primeNumberP.showDigits();	
+	
+    rsa.primeNumberGeneration(primeNumberQ, nSize/2);
+    cout<<"\nprimeNumber, q=\n";
+    primeNumberQ.showDigits();
 
-    cout<<"code=";
-    code.showDigits();
+    rsa.init(primeNumberP,primeNumberQ);
 
-    eGen.decryption(c, a, code, msg2);
+    BigInteger rslt(WORD_COUNT);
 
-    cout<<"msg=";
-    msg2.showDigits();
+    BigInteger msg(WORD_COUNT);
+    RSABigInteger operationCheck(WORD_COUNT);
+    operationCheck.randomNGeneration(msg, 4);
+    cout<<"\nmsg  to be encrypt: "<<endl;
+    msg.showDigits();
 
+    rsa.encryption(msg,rslt);
+    cout<<"\nEncrypted code:\n";
+    rslt.showDigits();
+
+    rsa.decryption(rslt,msg);
+    cout<<"\nDecrypted message:\n";
+    msg.showDigits();
+    
+    clock_gettime(CLOCK_MONOTONIC, &tend);
+    printf("\nKey Generation & Encryption-Decryption took %.2f seconds\n",
+           ((double)tend.tv_sec + 1.0e-9*tend.tv_nsec) - 
+           ((double)tstart.tv_sec + 1.0e-9*tstart.tv_nsec)); 
 
     return 0;
-
 }
