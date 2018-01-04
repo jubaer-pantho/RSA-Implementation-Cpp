@@ -89,3 +89,9 @@ represents the number of bits of the Algorithm. i.e. 1920. If no input is given 
 value of N to be 960 bits. The input value can also be changed from the script by changing the last
 line of the build.bash file.
 ./obj <desired value of N>
+
+References:
+[1] RSA Algorithm Example
+https://www.cs.utexas.edu/~mitra/honors/soln.html
+[2] Donald E. Knuth The Art Of Computer Programming 4.3.1 pages 266-273
+[3] Sanjoy Dasgupta Algorithms
