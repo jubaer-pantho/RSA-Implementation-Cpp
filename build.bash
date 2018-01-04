@@ -1,7 +1,7 @@
 #!/bin/bash
-set -u -e
-make clean
+#set -u -e
+#make clean
 make opt
 echo "Running..."
 cd ../bin
-./obj
+./obj 960
